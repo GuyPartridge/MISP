@@ -190,6 +190,12 @@ FROM "${DOCKER_HUB_PROXY}debian:bullseye-slim"
     COPY --from=composer-build --chown=www-data:www-data --chmod=0550 /tmp/Vendor /var/www/MISP/app/Vendor
     COPY --from=composer-build --chown=www-data:www-data --chmod=0550 /tmp/Plugin /var/www/MISP/app/Plugin
 
+    # Edit the php.ini file to adjust initial PHP settings to MISP recommended settings
+    RUN sed -i "s/max_execution_time = 30/max_execution_time = 300/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/memory_limit = 128M/memory_limit = 2048M/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/upload_max_filesize = 2M/upload_max_filesize = 50M/" /etc/php/7.2/apache2/php.ini ; \
+    sed -i "s/post_max_size = 8M/post_max_size = 50M/" /etc/php/7.2/apache2/php.ini
+
     # Gather these in one layer, only act on actual directories under /etc/php/
     RUN <<-EOF
         set -- "ssdeep" "rdkafka" "brotli" "simdjson"
